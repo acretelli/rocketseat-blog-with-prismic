@@ -1,1 +1,50 @@
-// TODO
+.posts {
+  a {
+    display: block;
+
+    & + a {
+      margin-top: 4rem;
+    }
+
+    h2 {
+      font-size: 28px;
+      color: var(--heading);
+    }
+
+    p {
+      margin-top: 0.5rem;
+      font-size: 18px;
+      color: var(--body);
+    }
+
+    .postInfo {
+      margin-top: 1.5rem;
+      font-size: 14px;
+      color: var(--info);
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+
+      time, small {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 0.5rem;
+      }
+
+      small {
+        margin-left: 1rem;
+        font-size: 14px;
+      }
+    }
+  }
+}
+
+.loadMoreButton {
+  margin-top: 4rem;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--highlight);
+  background: transparent;
+  border: none;
+}
