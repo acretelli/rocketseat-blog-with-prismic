@@ -179,6 +179,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const response = await prismic.getByUID('posts', String(slug), {});
 
   const post = {
+    id: response.id,
     uid: response.uid,
     first_publication_date: response.first_publication_date,
     last_publication_date: response.last_publication_date,
@@ -197,8 +198,8 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     Prismic.Predicates.at('document.type', 'posts'),
     {
       pageSize: 1,
-      after: `${post?.uid}`,
-      orderings: '[document.first_publication_date desc]',
+      after: `${post?.id}`,
+      orderings: '[document.first_publication_date]',
     }
   );
 
@@ -206,8 +207,8 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     Prismic.Predicates.at('document.type', 'posts'),
     {
       pageSize: 1,
-      after: `${post?.uid}`,
-      orderings: '[document.first_publication_date]',
+      after: `${post?.id}`,
+      orderings: '[document.first_publication_date desc]',
     }
   );
 
@@ -215,12 +216,12 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     props: {
       post,
       nextPage: {
-        title: nextResponse.results[0].data.title || null,
-        slug: nextResponse.results[0].uid || null,
+        title: nextResponse.results[0]?.data.title || null,
+        slug: nextResponse.results[0]?.uid || null,
       },
       prevPage: {
-        title: prevResponse.results[0].data.title || null,
-        slug: prevResponse.results[0].uid || null,
+        title: prevResponse.results[0]?.data.title || null,
+        slug: prevResponse.results[0]?.uid || null,
       },
     },
     revalidate: 60 * 30, // 30 minutes
