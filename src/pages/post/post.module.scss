@@ -23,6 +23,14 @@
       color: var(--body);
     }
 
+    p.updatedMessage {
+      margin-top: 0.5rem;
+      font-size: 14px;
+      font-weight: 400;
+      font-style: italic;
+      color: var(--info); 
+    }
+
     .postInfo {
       margin-top: 1.5rem;
       font-size: 14px;
@@ -48,4 +56,34 @@
     .postContent {
       margin: 4rem auto;
     }
+}
+
+.navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 4rem 0;
+  border-top: 1px solid rgba(215, 215, 215, 0.1);
+
+  > div {
+    cursor: pointer;
+  }
+
+  div:nth-child(2) {
+    text-align: right;
+  }
+
+  p {
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--heading);
+  }
+
+  p.highlight {
+    margin-top: 0.5rem;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--highlight);
+  }
 }

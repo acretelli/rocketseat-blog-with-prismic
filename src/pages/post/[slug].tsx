@@ -10,12 +10,14 @@ import { format } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
 
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import { getPrismicClient } from '../../services/prismic';
 
 import Header from '../../components/Header';
 
 import commonStyles from '../../styles/common.module.scss';
 import styles from './post.module.scss';
+import Comments from '../../components/Comments';
 
 type ContentBodyProps = {
   type: string;
@@ -29,6 +31,7 @@ type ContentProps = {
 
 interface Post {
   first_publication_date: string | null;
+  last_publication_date: string | null;
   data: {
     title: string;
     banner: {
@@ -41,10 +44,18 @@ interface Post {
 
 interface PostProps {
   post: Post;
+  nextPage: {
+    title: string;
+    slug: string;
+  };
+  prevPage: {
+    title: string;
+    slug: string;
+  };
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export default function Post({ post }: PostProps) {
+export default function Post({ post, nextPage, prevPage }: PostProps) {
   const router = useRouter();
 
   if (router.isFallback) {
@@ -87,6 +98,18 @@ export default function Post({ post }: PostProps) {
               {handleReadingTime()} min
             </small>
           </div>
+          {post.last_publication_date && (
+            <p className={styles.updatedMessage}>
+              *editado em{' '}
+              {format(
+                new Date(post.last_publication_date),
+                "dd MMM yyyy, 'às' HH:mm",
+                {
+                  locale: ptBR,
+                }
+              )}
+            </p>
+          )}
           {post.data.content.map((item, index) => {
             return (
               <div className={styles.postContent} key={`content-${index}`}>
@@ -98,6 +121,29 @@ export default function Post({ post }: PostProps) {
             );
           })}
         </article>
+        <div className={styles.navigation}>
+          <div>
+            {prevPage.title && (
+              <Link href={`/post/${prevPage.slug}`}>
+                <a>
+                  <p>{prevPage.title}</p>
+                  <p className={styles.highlight}>Post anterior</p>
+                </a>
+              </Link>
+            )}
+          </div>
+          <div>
+            {nextPage.title && (
+              <Link href={`/post/${nextPage.slug}`}>
+                <a>
+                  <p>{nextPage.title}</p>
+                  <p className={styles.highlight}>Próximo post</p>
+                </a>
+              </Link>
+            )}
+          </div>
+        </div>
+        <Comments />
       </main>
     </>
   );
@@ -135,6 +181,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const post = {
     uid: response.uid,
     first_publication_date: response.first_publication_date,
+    last_publication_date: response.last_publication_date,
     data: {
       title: response.data.title,
       subtitle: response.data.subtitle,
@@ -146,9 +193,35 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     },
   };
 
+  const nextResponse = await prismic.query(
+    Prismic.Predicates.at('document.type', 'posts'),
+    {
+      pageSize: 1,
+      after: `${post?.uid}`,
+      orderings: '[document.first_publication_date desc]',
+    }
+  );
+
+  const prevResponse = await prismic.query(
+    Prismic.Predicates.at('document.type', 'posts'),
+    {
+      pageSize: 1,
+      after: `${post?.uid}`,
+      orderings: '[document.first_publication_date]',
+    }
+  );
+
   return {
     props: {
       post,
+      nextPage: {
+        title: nextResponse.results[0].data.title || null,
+        slug: nextResponse.results[0].uid || null,
+      },
+      prevPage: {
+        title: prevResponse.results[0].data.title || null,
+        slug: prevResponse.results[0].uid || null,
+      },
     },
     revalidate: 60 * 30, // 30 minutes
   };
